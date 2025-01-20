@@ -56,4 +56,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("androidx.navigation:navigation-compose:2.8.4")
+    implementation ("androidx.compose.material:material-icons-extended:<latest_version>")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:<latest_version>")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 }
