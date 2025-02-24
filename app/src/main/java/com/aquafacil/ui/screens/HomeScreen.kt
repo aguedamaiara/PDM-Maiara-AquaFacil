@@ -1,4 +1,4 @@
-package com.aquafacil.ui
+package com.aquafacil.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -13,6 +13,7 @@ import com.aquafacil.R
 
 @Composable
 fun HomeScreen(onNavigate: () -> Unit) {
+    Text("Tela inicial! Veja seus aquários")
     Column(
         modifier = Modifier
             .fillMaxSize()

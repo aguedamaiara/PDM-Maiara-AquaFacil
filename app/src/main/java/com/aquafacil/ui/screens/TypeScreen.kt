@@ -1,4 +1,4 @@
-package com.aquafacil.ui
+package com.aquafacil.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -8,9 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.aquafacil.model.AquariumType
 
 @Composable
-fun ConfigAquariumScreen(navController: NavController) {
+fun TypeScreen(navController: NavController, onTypeSelected: (AquariumType) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -18,9 +19,18 @@ fun ConfigAquariumScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Configuração do Aquário", modifier = Modifier.padding(bottom = 16.dp))
-        Button(onClick = { navController.navigate("type") }) {
-            Text("Iniciar Configuração")
+        Button(onClick = {
+            onTypeSelected(AquariumType.FRESHWATER)
+            navController.navigate("size")
+        }) {
+            Text("Água Doce")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            onTypeSelected(AquariumType.SALTWATER)
+            navController.navigate("size")
+        }) {
+            Text("Água Salgada")
         }
     }
 }
