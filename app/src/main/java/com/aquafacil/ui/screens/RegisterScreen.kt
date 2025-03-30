@@ -14,6 +14,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.aquafacil.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+
 
 @Composable
 fun RegisterScreen(
@@ -24,6 +31,12 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Inicializa o Firebase Auth e Firestore
+    val auth: FirebaseAuth = Firebase.auth
+    val db: FirebaseFirestore = Firebase.firestore
 
     Column(
         modifier = Modifier
@@ -82,14 +95,64 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage ?: "",
+                color = Color.Red,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = onRegisterSuccess,
+            onClick = {
+                if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+                    errorMessage = "Preencha todos os campos"
+                } else if (password != confirmPassword) {
+                    errorMessage = "As senhas não coincidem"
+                } else {
+                    isLoading = true
+                    errorMessage = null
+
+                    // Cadastro com Firebase Authentication
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Salva informações adicionais no Firestore
+                                val user = hashMapOf(
+                                    "name" to name,
+                                    "email" to email,
+                                    "uid" to auth.currentUser?.uid // UID do usuário
+                                )
+
+                                // Adiciona o usuário à coleção "users" no Firestore
+                                db.collection("users")
+                                    .document(auth.currentUser?.uid ?: "")
+                                    .set(user)
+                                    .addOnSuccessListener {
+                                        isLoading = false
+                                        onRegisterSuccess() // Navega para a próxima tela
+                                    }
+                                    .addOnFailureListener { e ->
+                                        isLoading = false
+                                        errorMessage = "Erro ao salvar dados: ${e.message}"
+                                    }
+                            } else {
+                                isLoading = false
+                                errorMessage = "Erro ao cadastrar: ${task.exception?.message}"
+                            }
+                        }
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4))
         ) {
-            Text(text = "Registrar", color = Color.White)
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                Text(text = "Registrar", color = Color.White)
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

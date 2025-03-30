@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "251722107899",
+    "project_id": "aquafacil-2025",
+    "storage_bucket": "aquafacil-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251722107899:android:6349e42f06c868b070d95e",
+        "android_client_info": {
+          "package_name": "com.aquafacil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9I-q50d3cfqWEwlXisNmHXtWDdDy4xik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -13,6 +13,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.aquafacil.R
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 @Composable
 fun LoginScreen(
@@ -21,6 +24,11 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Inicializa o Firebase Auth
+    val auth: FirebaseAuth = Firebase.auth
 
     Column(
         modifier = Modifier
@@ -41,7 +49,8 @@ fun LoginScreen(
             onValueChange = { email = it },
             label = { Text("Email") },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errorMessage != null
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -53,17 +62,47 @@ fun LoginScreen(
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errorMessage != null
         )
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage ?: "",
+                color = Color.Red,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = onLoginSuccess,
+            onClick = {
+                if (email.isBlank() || password.isBlank()) {
+                    errorMessage = "Preencha todos os campos"
+                } else {
+                    isLoading = true
+                    errorMessage = null
+
+                    // Autenticação com Firebase
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            isLoading = false
+                            if (task.isSuccessful) {
+                                onLoginSuccess() // Navega para a próxima tela
+                            } else {
+                                errorMessage = "Erro ao fazer login: ${task.exception?.message}"
+                            }
+                        }
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4))
         ) {
-            Text(text = "Entrar", color = Color.White)
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                Text(text = "Entrar", color = Color.White)
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

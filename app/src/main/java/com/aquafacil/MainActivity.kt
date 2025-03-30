@@ -16,13 +16,13 @@ import com.aquafacil.ui.nav.BottomNav
 import com.aquafacil.ui.nav.BottomNavBar
 import com.aquafacil.ui.nav.NavGraph
 import com.aquafacil.ui.theme.AquaFacilTheme
-
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+        FirebaseApp.initializeApp(this) // Inicializa o Firebase
         setContent {
             AquaFacilTheme {
                 val navController = rememberNavController()

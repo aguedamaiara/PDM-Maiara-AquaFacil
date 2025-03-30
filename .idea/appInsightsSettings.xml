@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.aquafacil" />
+                  <option name="mobileSdkAppId" value="1:251722107899:android:6349e42f06c868b070d95e" />
+                  <option name="projectId" value="aquafacil-2025" />
+                  <option name="projectNumber" value="251722107899" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

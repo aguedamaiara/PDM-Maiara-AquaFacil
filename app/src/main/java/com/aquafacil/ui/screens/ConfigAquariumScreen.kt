@@ -7,10 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.aquafacil.ui.viewmodel.AquariumViewModel
 
 @Composable
 fun ConfigAquariumScreen(navController: NavController) {
+    // Na tela principal ou na tela que inicia o fluxo
+    val aquariumViewModel: AquariumViewModel = viewModel()
     Column(
         modifier = Modifier
             .fillMaxSize()

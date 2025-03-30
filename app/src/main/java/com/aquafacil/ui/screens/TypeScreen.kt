@@ -9,9 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.aquafacil.model.AquariumType
+import com.aquafacil.ui.viewmodel.AquariumViewModel
 
 @Composable
-fun TypeScreen(navController: NavController, onTypeSelected: (AquariumType) -> Unit) {
+fun TypeScreen(navController: NavController, aquariumViewModel: AquariumViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -19,15 +20,16 @@ fun TypeScreen(navController: NavController, onTypeSelected: (AquariumType) -> U
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text("Seu aquário é de água doce ou salgada?")
         Button(onClick = {
-            onTypeSelected(AquariumType.FRESHWATER)
+            aquariumViewModel.setType(AquariumType.FRESHWATER)
             navController.navigate("size")
         }) {
             Text("Água Doce")
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            onTypeSelected(AquariumType.SALTWATER)
+            aquariumViewModel.setType(AquariumType.SALTWATER)
             navController.navigate("size")
         }) {
             Text("Água Salgada")
