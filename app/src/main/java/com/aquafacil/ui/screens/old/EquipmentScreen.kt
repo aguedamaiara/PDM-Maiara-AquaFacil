@@ -1,4 +1,4 @@
-package com.aquafacil.ui.screens
+package com.aquafacil.ui.screens.old
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
@@ -8,12 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.aquafacil.model.Equipment
 import com.aquafacil.model.EquipmentType
 import com.aquafacil.ui.viewmodel.AquariumViewModel
-import com.aquafacil.model.User
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)

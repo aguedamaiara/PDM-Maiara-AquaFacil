@@ -38,7 +38,8 @@ class MainActivity : ComponentActivity() {
                                 items = listOf(
                                     BottomNav.HomeButton, // "Home" button
                                     BottomNav.CronogramaButton, // "Cronograma" button
-                                    BottomNav.PerfilButton // "Perfil" button
+                                    BottomNav.PerfilButton, // "Perfil" button
+                                    BottomNav.FishButton
                                 )
                             )
                         }

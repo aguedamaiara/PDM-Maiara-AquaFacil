@@ -25,6 +25,9 @@ sealed interface Route {
     data object Cronograma : Route
     @Serializable
     data object Perfil : Route
+
+    @Serializable
+    data object Peixes : Route // Nova tela de Peixes
 }
 
 sealed class BottomNav(
@@ -35,6 +38,7 @@ sealed class BottomNav(
     data object HomeButton : BottomNav("Início", Icons.Default.Home, "home")
     data object CronogramaButton : BottomNav("Cronograma", Icons.Default.CalendarToday, "cronograma")
     data object PerfilButton : BottomNav("Sua Conta", Icons.Default.Person, "perfil")
+    data object FishButton : BottomNav("Peixes", Icons.Default.Person, "fish_screen") // Adicionado aqui
 }
 
 @Composable

@@ -5,17 +5,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.aquafacil.ui.screens.ConfigAquariumScreen
+import com.aquafacil.ui.screens.old.ConfigAquariumScreen
 import com.aquafacil.ui.screens.CronogramaScreen
-import com.aquafacil.ui.screens.EquipmentScreen
+import com.aquafacil.ui.screens.FishScreen
 import com.aquafacil.ui.screens.HomeScreen
 import com.aquafacil.ui.screens.LoginScreen
 import com.aquafacil.ui.screens.PerfilScreen
-import com.aquafacil.ui.screens.PlantsScreen
 import com.aquafacil.ui.screens.RegisterScreen
-import com.aquafacil.ui.screens.SizeScreen
-import com.aquafacil.ui.screens.SpeciesScreen
-import com.aquafacil.ui.screens.TypeScreen
 import com.aquafacil.ui.viewmodel.AquariumViewModel
 import com.aquafacil.ui.screens.SetupAquariumScreen
 
@@ -62,6 +58,13 @@ fun NavGraph(navController: NavHostController) {
         composable("config_aquarium") {
             ConfigAquariumScreen(navController)
         }
+
+        // Adicionar a rota para a tela de peixes
+        composable("fish_screen") {
+            FishScreen(navController)
+        }
+
+
 
         // Substituir as cinco telas por SetupAquariumScreen
         composable("setup_aquarium") {

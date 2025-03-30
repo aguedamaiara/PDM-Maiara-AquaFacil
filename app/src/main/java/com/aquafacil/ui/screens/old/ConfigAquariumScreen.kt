@@ -1,4 +1,4 @@
-package com.aquafacil.ui.screens
+package com.aquafacil.ui.screens.old
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button

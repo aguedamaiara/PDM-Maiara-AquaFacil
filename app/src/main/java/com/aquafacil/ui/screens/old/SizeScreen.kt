@@ -1,4 +1,4 @@
-package com.aquafacil.ui.screens
+package com.aquafacil.ui.screens.old
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -6,7 +6,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.aquafacil.ui.viewmodel.AquariumViewModel
 
