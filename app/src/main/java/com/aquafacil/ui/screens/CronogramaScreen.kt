@@ -15,10 +15,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aquafacil.model.Aquarium
 import com.aquafacil.model.AquariumType
+import com.aquafacil.model.Task
 import com.aquafacil.model.getDisplayName
 import com.aquafacil.ui.viewmodel.AquariumViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import com.aquafacil.utils.CronogramaUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,9 +31,12 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showFilters by remember { mutableStateOf(false) }
 
-    // Carrega os aquários quando a tela for exibida
+    // Carrega os aquários e tarefas completas quando a tela for exibida
     LaunchedEffect(Unit) {
         aquariumViewModel.loadAquariums()
+        aquariumViewModel.getCurrentUserId()?.let { userId ->
+            aquariumViewModel.taskStateManager.loadCompletedTasks(userId)
+        }
     }
 
     Scaffold(
@@ -50,7 +55,13 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { selectedDate = Date() }, // Volta para hoje
+                onClick = {
+                    selectedDate = Date()
+                    // Recarrega as tarefas ao voltar para hoje
+                    aquariumViewModel.getCurrentUserId()?.let { userId ->
+                        aquariumViewModel.taskStateManager.loadCompletedTasks(userId)
+                    }
+                },
                 icon = { Icon(Icons.Default.CalendarToday, contentDescription = "Hoje") },
                 text = { Text("Hoje") }
             )
@@ -75,12 +86,18 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
             if (aquariums.isEmpty()) {
                 Text("Nenhum aquário encontrado.", style = MaterialTheme.typography.bodyLarge)
             } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn {
                     items(aquariums) { aquarium ->
-                        val cronograma = gerarCronograma(aquarium, selectedDate).map { task ->
-                            // Atualiza o estado completado com base no ViewModel
-                            task.copy(completed = aquariumViewModel.taskStateManager.isTaskCompleted(task.id))
-                        }
+                        val cronograma = CronogramaUtils.gerarCronograma(aquarium, selectedDate)
+                            .map { task ->
+                                task.copy(
+                                    completed = aquariumViewModel.taskStateManager.isTaskCompleted(
+                                        task.id,
+                                        task.frequency,
+                                        selectedDate // Passe a data selecionada
+                                    )
+                                )
+                            }
 
                         if (cronograma.isNotEmpty()) {
                             // Cabeçalho do aquário
@@ -95,9 +112,8 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
                             cronograma.forEach { atividade ->
                                 CronogramaItem(
                                     atividade = atividade,
-                                    onCheckedChange = { checked ->
-                                        // Atualiza o estado no ViewModel
-                                        aquariumViewModel.taskStateManager.toggleTaskCompletion(atividade.id)
+                                    onCheckedChange = { task, checked ->
+                                        aquariumViewModel.taskStateManager.toggleTaskCompletion(task)
                                     }
                                 )
                             }
@@ -132,7 +148,7 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
         }
     }
 
-    // Diálogo de filtros (implementação básica)
+    // Diálogo de filtros
     if (showFilters) {
         AlertDialog(
             onDismissRequest = { showFilters = false },
@@ -150,13 +166,14 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
 @Composable
 fun CronogramaItem(
     atividade: Task,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Task, Boolean) -> Unit
 ) {
     var checkedState by remember { mutableStateOf(atividade.completed) }
 
-    LaunchedEffect(atividade.completed) {
+    LaunchedEffect(atividade) {
         checkedState = atividade.completed
     }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,7 +197,7 @@ fun CronogramaItem(
                 checked = checkedState,
                 onCheckedChange = {
                     checkedState = it
-                    onCheckedChange(it)
+                    onCheckedChange(atividade, it)
                 },
                 modifier = Modifier.padding(end = 16.dp),
                 colors = CheckboxDefaults.colors(
@@ -218,153 +235,3 @@ fun CronogramaItem(
     }
 }
 
-// Modelo de dados para tarefas
-data class Task(
-    val id: String,
-    val title: String,
-    val dates: String,
-    val completed: Boolean = false
-)
-
-// Função para gerar cronograma com suporte a data selecionada
-fun gerarCronograma(aquarium: Aquarium, selectedDate: Date): List<Task> {
-    val tasks = mutableListOf<Task>()
-    val quantidadePeixes = aquarium.fishQuantity
-    val today = Calendar.getInstance().apply { time = selectedDate }
-
-    // Função auxiliar para criar tarefas
-    fun createTask(title: String, frequency: String): Task {
-        val (todayText, nextText) = getNextDates(frequency, selectedDate)
-        return Task(
-            id = "${aquarium.id}_${title.hashCode()}",
-            title = "$title - $todayText",
-            dates = nextText
-        )
-    }
-
-    // Tarefas baseadas no tipo de aquário
-    when (aquarium.type) {
-        AquariumType.FRESHWATER -> {
-            tasks.add(createTask("Troca parcial de água", calcularFrequenciaTroca(aquarium.size)))
-        }
-        AquariumType.SALTWATER -> {
-            tasks.add(createTask("Troca parcial de água", calcularFrequenciaTroca(aquarium.size)))
-            tasks.add(createTask("Verificação de salinidade", "Semanalmente"))
-        }
-        else -> {
-            tasks.add(Task(
-                id = "${aquarium.id}_unknown",
-                title = "Tipo de aquário desconhecido",
-                dates = "Verifique as configurações"
-            ))
-        }
-    }
-
-    // Tarefas baseadas na quantidade de peixes
-    if (quantidadePeixes.isNotEmpty() && quantidadePeixes != "0") {
-        tasks.add(Task(
-            id = "${aquarium.id}_feeding",
-            title = "Alimentação dos peixes - ${calcularFrequenciaAlimentacao(quantidadePeixes)}",
-            dates = ""
-        ))
-
-        tasks.add(createTask(
-            "Monitoramento da qualidade da água",
-            calcularFrequenciaMonitoramento(quantidadePeixes)
-        ))
-
-        if (quantidadePeixes == "5-10" || quantidadePeixes == "Mais de 10") {
-            tasks.add(createTask("Verificação de oxigênio dissolvido", "Semanalmente"))
-        }
-    }
-
-    // Tarefas para aquários plantados
-    if (aquarium.isPlanted) {
-        tasks.add(createTask("Fertilização das plantas aquáticas", "Semanalmente"))
-        tasks.add(createTask("Podas e manutenção das plantas", "A cada 2 semanas"))
-
-        if (quantidadePeixes == "5-10" || quantidadePeixes == "Mais de 10") {
-            tasks.add(createTask("Verificação de níveis de CO2", "Semanalmente"))
-        }
-    }
-
-    // Manutenção de equipamentos
-    if (aquarium.hasEquipment) {
-        val frequenciaLimpeza = when (quantidadePeixes) {
-            "Mais de 10" -> "Semanalmente"
-            "5-10" -> "A cada 10 dias"
-            else -> "A cada 2 semanas"
-        }
-
-        tasks.add(createTask("Limpeza do filtro", frequenciaLimpeza))
-        tasks.add(createTask("Verificação geral dos equipamentos", "Mensalmente"))
-    }
-
-    return tasks
-}
-
-// Função para calcular datas (atualizada para trabalhar com qualquer data)
-fun getNextDates(frequency: String, baseDate: Date): Pair<String, String> {
-    val calendar = Calendar.getInstance().apply { time = baseDate }
-    val todayText = formatDate(calendar.time)
-
-    return when {
-        frequency.contains("Semanalmente") -> {
-            calendar.add(Calendar.WEEK_OF_YEAR, 1)
-            val nextText = formatDate(calendar.time)
-            Pair("Hoje ($todayText)", "Próxima: $nextText")
-        }
-        frequency.contains("A cada 2 semanas") -> {
-            calendar.add(Calendar.WEEK_OF_YEAR, 2)
-            val nextText = formatDate(calendar.time)
-            Pair("Hoje ($todayText)", "Próxima: $nextText")
-        }
-        frequency.contains("A cada 10 dias") -> {
-            calendar.add(Calendar.DAY_OF_YEAR, 10)
-            val nextText = formatDate(calendar.time)
-            Pair("Hoje ($todayText)", "Próxima: $nextText")
-        }
-        frequency.contains("Mensalmente") -> {
-            calendar.add(Calendar.MONTH, 1)
-            val nextText = formatDate(calendar.time)
-            Pair("Hoje ($todayText)", "Próxima: $nextText")
-        }
-        else -> Pair(frequency, "")
-    }
-}
-// Função para formatar datas
-fun formatDate(date: Date): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return sdf.format(date)
-}
-
-// Função para calcular a frequência de troca de água baseada no tamanho do aquário
-fun calcularFrequenciaTroca(tamanho: Double): String {
-    return when {
-        tamanho <= 50 -> "Semanal (20-30%)"
-        tamanho <= 100 -> "A cada 2 semanas (15-20%)"
-        else -> "A cada 3 semanas (10-15%)"
-    }
-}
-
-// Função para calcular a frequência de alimentação baseada na quantidade de peixes
-fun calcularFrequenciaAlimentacao(quantidadePeixes: String): String {
-    return when (quantidadePeixes) {
-        "1" -> "1 vez ao dia (pequena porção)"
-        "1-5" -> "1-2 vezes ao dia (porções moderadas)"
-        "5-10" -> "2 vezes ao dia (manhã e tarde)"
-        "Mais de 10" -> "2-3 vezes ao dia (pequenas porções para evitar sobras)"
-        else -> "Nenhuma alimentação programada"
-    }
-}
-
-// Função para calcular a frequência de monitoramento da água
-fun calcularFrequenciaMonitoramento(quantidadePeixes: String): String {
-    return when (quantidadePeixes) {
-        "1" -> "A cada 10-14 dias"
-        "1-5" -> "Semanalmente"
-        "5-10" -> "2 vezes por semana"
-        "Mais de 10" -> "3 vezes por semana ou diariamente para aquários muito populosos"
-        else -> "Monitoramento básico mensal"
-    }
-}

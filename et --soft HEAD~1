@@ -1,0 +1,59 @@
+[33mcommit 4340b0003184a6e6d3e6d0e17e6142f7ca225578[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Mar 31 15:49:54 2025 -0300
+
+    feat
+
+[33mcommit ed15750d82645e57d88450a8b633837743e04380[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Mar 31 15:24:11 2025 -0300
+
+    fix: corrigindo a alimentação do cronograma
+
+[33mcommit 5f2ceac068b69ee60862e488385a04d5ebf4ed96[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Mar 31 14:41:51 2025 -0300
+
+    fix: add nome do aquario em home
+
+[33mcommit 5106f261e4a61a275cbfbaf1ac2e3e23d951bdfb[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Mar 31 14:37:07 2025 -0300
+
+     feat:edição de perfil, criação de cronograma e alteração na configuração de aquario
+
+[33mcommit a3471fba03abbde007c7e2324e944263a1946420[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Sun Mar 30 11:03:27 2025 -0300
+
+    feat: adicionar consumo da API de peixes
+
+[33mcommit 0db896be03c302800ae16e29ca5ea0111b9c4a4c[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Sun Mar 30 09:25:57 2025 -0300
+
+    configuração de aquarios
+
+[33mcommit e2612fd6fe49ff44f2f43a0b9a844a09ad4543f9[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Feb 24 09:34:59 2025 -0300
+
+    Telas ok, models em construção
+
+[33mcommit ee0a14f39393ac3e44ab06ab5b36deecf3417b7a[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Jan 20 20:54:01 2025 -0300
+
+    Telas prototipo da parte de configuração do aquario
+
+[33mcommit 807b276706ca58b4b1a2497f0e3ca610d08a7875[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Mon Jan 20 20:22:37 2025 -0300
+
+    Tela Inicial
+
+[33mcommit 9b3fcd8712e4d2d5b298aaeb726cf646ef0dae4e[m
+Author: aguedamaiara <costaaguedama@gmail.com>
+Date:   Sat Dec 28 20:06:56 2024 -0300
+
+    Criando o projeto

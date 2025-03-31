@@ -11,6 +11,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.util.UUID
+import com.aquafacil.ui.viewmodel.TaskStateManager
+
 
 class AquariumViewModel : ViewModel() {
 
@@ -34,7 +36,8 @@ class AquariumViewModel : ViewModel() {
 
     // Adicionando o TaskStateManager
     private val _taskStateManager = TaskStateManager(this)
-    val taskStateManager: TaskStateManager get() = _taskStateManager
+//    val taskStateManager: TaskStateManager get() = _taskStateManager
+    val taskStateManager = TaskStateManager(this)
 
 
     // Lista de aquários do usuário
@@ -135,151 +138,3 @@ class AquariumViewModel : ViewModel() {
 
 }
 
-// Adicione esta classe dentro do mesmo arquivo ou em um novo arquivo
-class TaskStateManager(private val viewModel: AquariumViewModel) {
-    private val completedTasks = mutableSetOf<String>()
-    private val db: FirebaseFirestore = Firebase.firestore
-    private val auth: FirebaseAuth = Firebase.auth
-
-    fun isTaskCompleted(taskId: String): Boolean = completedTasks.contains(taskId)
-
-    fun toggleTaskCompletion(taskId: String) {
-        if (completedTasks.contains(taskId)) {
-            completedTasks.remove(taskId)
-        } else {
-            completedTasks.add(taskId)
-        }
-        saveCompletedTasks()
-    }
-
-    fun loadCompletedTasks(userId: String, onComplete: () -> Unit = {}) {
-        db.collection("users")
-            .document(userId)
-            .collection("completedTasks")
-            .get()
-            .addOnSuccessListener { result ->
-                completedTasks.clear()
-                result.documents.forEach { doc ->
-                    doc.getString("taskId")?.let { completedTasks.add(it) }
-                }
-                onComplete()
-            }
-            .addOnFailureListener { e ->
-                println("Erro ao carregar tarefas completas: ${e.message}")
-                onComplete()
-            }
-    }
-
-    private fun saveCompletedTasks() {
-        val userId = auth.currentUser?.uid ?: return
-        val batch = db.batch()
-
-        // Limpa todas as tarefas existentes
-        db.collection("users")
-            .document(userId)
-            .collection("completedTasks")
-            .get()
-            .addOnSuccessListener { result ->
-                result.forEach { doc ->
-                    batch.delete(doc.reference)
-                }
-
-                // Adiciona as tarefas atuais
-                completedTasks.forEach { taskId ->
-                    val newDoc = db.collection("users")
-                        .document(userId)
-                        .collection("completedTasks")
-                        .document()
-                    batch.set(newDoc, mapOf("taskId" to taskId))
-                }
-
-                batch.commit()
-                    .addOnFailureListener { e ->
-                        println("Erro ao salvar tarefas completas: ${e.message}")
-                    }
-            }
-    }
-}
-
-/*
-
-class AquariumViewModel : ViewModel() {
-
-    // Inicializa o Firestore e o Firebase Auth
-    private val db: FirebaseFirestore = Firebase.firestore
-    private val auth: FirebaseAuth = Firebase.auth
-
-    // Estado do aquário atual (usado durante o cadastro)
-    private val _aquarium = MutableLiveData(Aquarium(
-        id = "", // Será gerado pelo Firestore
-        userId = "", // Será definido ao salvar
-        type = AquariumType.FRESHWATER , // Valor padrão
-        size = 0.0, // Valor padrão
-        fishSpecies = emptyList(), // Lista vazia inicialmente
-        aquaticPlants = emptyList(), // Lista vazia inicialmente
-        equipment = emptyList() // Lista vazia inicialmente
-    ))
-    val aquarium: LiveData<Aquarium> get() = _aquarium
-
-    // Lista de aquários do usuário
-    private val _aquariums = MutableLiveData<List<Aquarium>>()
-    val aquariums: LiveData<List<Aquarium>> get() = _aquariums
-
-    // Funções para atualizar o estado do aquário atual
-    fun setType(type: AquariumType) {
-        _aquarium.value = _aquarium.value?.copy(type = type)
-    }
-
-    fun setSize(size: String) {
-        _aquarium.value = _aquarium.value?.copy(size = size.toDouble())
-    }
-
-    fun updateFishSpecies(species: List<FishSpecies>) {
-        _aquarium.value = _aquarium.value?.copy(fishSpecies = species)
-    }
-
-    fun updatePlants(plants: List<AquaticPlant>) {
-        _aquarium.value = _aquarium.value?.copy(aquaticPlants = plants)
-    }
-
-    fun updateEquipment(equipment: List<Equipment>) {
-        _aquarium.value = _aquarium.value?.copy(equipment = equipment)
-    }
-
-    fun getCurrentUserId(): String? {
-        return auth.currentUser?.uid
-    }
-
-    // Função para salvar o aquário no Firestore
-    fun saveAquarium(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val aquarium = _aquarium.value?.copy(userId = auth.currentUser?.uid ?: "")
-        if (aquarium != null) {
-            db.collection("aquariums")
-                .add(aquarium)
-                .addOnSuccessListener {
-                    onSuccess()
-                }
-                .addOnFailureListener { e ->
-                    onFailure(e)
-                }
-        }
-    }
-
-    // Função para carregar os aquários do usuário
-    fun loadAquariums() {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            db.collection("aquariums")
-                .whereEqualTo("userId", userId) // Filtra os aquários pelo ID do usuário
-                .get()
-                .addOnSuccessListener { result ->
-                    val aquariumsList = result.toObjects(Aquarium::class.java)
-                    _aquariums.value = aquariumsList
-                }
-                .addOnFailureListener { e ->
-                    // Trate o erro aqui
-                    println("Erro ao carregar aquários: ${e.message}")
-                }
-        }
-    }
-}*/
