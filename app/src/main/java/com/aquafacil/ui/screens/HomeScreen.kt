@@ -72,6 +72,7 @@ fun AquariumItem(aquarium: Aquarium) {
             .fillMaxWidth()
             .padding(8.dp)
     ) {
+        Text("Nome: ${aquarium.name}")
         Text(
             text = "Tipo de aquário: ${
                 when (aquarium.type) {
