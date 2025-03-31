@@ -95,6 +95,19 @@ fun LoginScreen(
                         }
                 }
             },
+
+//                    // Tentando fazer login diretamente com Firebase Auth sem reCAPTCHA
+//                    auth.signInWithEmailAndPassword(email, password)
+//                        .addOnCompleteListener { task ->
+//                            isLoading = false
+//                            if (task.isSuccessful) {
+//                                onLoginSuccess() // Navega para a próxima tela
+//                            } else {
+//                                errorMessage = "Erro ao fazer login: ${task.exception?.message}"
+//                            }
+//                        }
+//                }
+//            },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF03A9F4))
         ) {

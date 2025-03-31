@@ -22,7 +22,7 @@ fun TypeScreen(navController: NavController, aquariumViewModel: AquariumViewMode
     ) {
         Text("Seu aquário é de água doce ou salgada?")
         Button(onClick = {
-            aquariumViewModel.setType(AquariumType.FRESHWATER)
+            aquariumViewModel.setType(AquariumType.FRESHWATER )
             navController.navigate("size")
         }) {
             Text("Água Doce")

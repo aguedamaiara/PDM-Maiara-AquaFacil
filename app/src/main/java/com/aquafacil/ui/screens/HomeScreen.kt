@@ -1,6 +1,5 @@
 package com.aquafacil.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,11 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.aquafacil.R
 import com.aquafacil.model.Aquarium
+import com.aquafacil.model.AquariumType
 import com.aquafacil.ui.viewmodel.AquariumViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -64,7 +62,6 @@ fun HomeScreen(aquariumViewModel: AquariumViewModel, onNavigate: () -> Unit) {
         Button(onClick = onNavigate) {
             Text("Configurar Aquário")
         }
-
     }
 }
 
@@ -75,11 +72,18 @@ fun AquariumItem(aquarium: Aquarium) {
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-        Text("Tipo de aquário: ${aquarium.type}")
-        Text("Tamanho: ${aquarium.size} L")
-        Text("Espécies: ${aquarium.fishSpecies.joinToString { it.name }}")
-        Text("Plantas: ${aquarium.aquaticPlants.joinToString { it.name }}")
-        Text("Equipamentos: ${aquarium.equipment.joinToString { it.name }}")
+        Text(
+            text = "Tipo de aquário: ${
+                when (aquarium.type) {
+                    AquariumType.FRESHWATER -> "Água Doce"
+                    AquariumType.SALTWATER -> "Água Salgada"
+                }
+            }"
+        )
+        Text("Tamanho: ${aquarium.size} Litros")
+        Text("Quantidade de peixes: ${aquarium.fishQuantity}")
+        Text("Possui Plantas: ${if (aquarium.isPlanted) "Sim" else "Não"}")
+        Text("Equipamentos instalados: ${if (aquarium.hasEquipment) "Sim" else "Não"}")
         Spacer(modifier = Modifier.height(8.dp))
         Divider() // Adiciona uma linha divisória entre os aquários
     }

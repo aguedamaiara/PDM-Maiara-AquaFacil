@@ -1,10 +1,13 @@
 package com.aquafacil.ui.nav
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.aquafacil.model.Aquarium
 import com.aquafacil.ui.screens.old.ConfigAquariumScreen
 import com.aquafacil.ui.screens.CronogramaScreen
 import com.aquafacil.ui.screens.FishScreen
@@ -17,6 +20,8 @@ import com.aquafacil.ui.screens.SetupAquariumScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    val aquariumViewModel: AquariumViewModel = viewModel()
+    val aquariums by aquariumViewModel.aquariums.observeAsState(initial = emptyList())
     NavHost(navController = navController, startDestination = "login") {
         // Tela de Login
         composable("login") {
@@ -46,12 +51,14 @@ fun NavGraph(navController: NavHostController) {
 
         // Tela de Cronograma
         composable("cronograma") {
-            CronogramaScreen()
+            CronogramaScreen(aquariumViewModel = aquariumViewModel)
         }
+
+
 
         // Tela de Perfil
         composable("perfil") {
-            PerfilScreen()
+            PerfilScreen(navController)
         }
 
         // Tela de Configuração do Aquário
@@ -64,14 +71,13 @@ fun NavGraph(navController: NavHostController) {
             FishScreen(navController)
         }
 
-
-
         // Substituir as cinco telas por SetupAquariumScreen
         composable("setup_aquarium") {
             val aquariumViewModel: AquariumViewModel = viewModel()
             SetupAquariumScreen(navController = navController, aquariumViewModel = aquariumViewModel)
         }
-
+    }
+}
        /* // Tela de Tipo de Aquário
         composable("type") {
             val aquariumViewModel: AquariumViewModel = viewModel()
@@ -104,5 +110,3 @@ fun NavGraph(navController: NavHostController) {
             val aquariumViewModel: AquariumViewModel = viewModel()
             EquipmentScreen(navController = navController, aquariumViewModel = aquariumViewModel)
         }*/
-    }
-}

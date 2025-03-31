@@ -24,13 +24,13 @@ class AquariumViewModel : ViewModel() {
     // Estado do aquário atual (usado durante o cadastro)
     private val _aquarium = MutableLiveData(
         Aquarium(
-            id = "", // Será gerado pelo Firestore
-            userId = "", // Será definido ao salvar
-            type = AquariumType.FRESHWATER, // Valor padrão
-            size = 0.0, // Valor padrão
-            fishSpecies = emptyList(), // Lista vazia inicialmente
-            aquaticPlants = emptyList(), // Lista vazia inicialmente
-            equipment = emptyList() // Lista vazia inicialmente
+            id = "",
+            userId = "",
+            type = AquariumType.FRESHWATER ,
+            size = 0.0,
+            fishQuantity = "1", // Valor padrão
+            isPlanted = false,
+            hasEquipment = false
         )
     )
     val aquarium: LiveData<Aquarium> get() = _aquarium
@@ -49,24 +49,26 @@ class AquariumViewModel : ViewModel() {
         _aquarium.value = _aquarium.value?.copy(size = sizeValue)
     }
 
-    fun updateFishSpecies(species: List<FishSpecies>) {
-        val updatedSpecies = species.map { it.copy(id = UUID.randomUUID().toString()) }
-        _aquarium.value = _aquarium.value?.copy(fishSpecies = updatedSpecies)
+    fun setFishQuantity(quantity: String) {
+        _aquarium.value = _aquarium.value?.copy(fishQuantity = quantity)
     }
 
-    fun updatePlants(plants: List<AquaticPlant>) {
-        val updatedPlants = plants.map { it.copy(id = UUID.randomUUID().toString()) }
-        _aquarium.value = _aquarium.value?.copy(aquaticPlants = updatedPlants)
+    fun setPlanted(isPlanted: Boolean) {
+        _aquarium.value = _aquarium.value?.copy(isPlanted = isPlanted)
     }
 
-    fun updateEquipment(equipment: List<Equipment>) {
-        val updatedEquipment = equipment.map { it.copy(id = UUID.randomUUID().toString()) }
-        _aquarium.value = _aquarium.value?.copy(equipment = updatedEquipment)
+    fun setHasEquipment(hasEquipment: Boolean) {
+        _aquarium.value = _aquarium.value?.copy(hasEquipment = hasEquipment)
     }
 
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
+
+    fun setName(name: String) {
+        _aquarium.value = _aquarium.value?.copy(name = name)
+    }
+
 
     // Função para salvar o aquário no Firestore
     fun saveAquarium(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -126,7 +128,7 @@ class AquariumViewModel : ViewModel() {
     private val _aquarium = MutableLiveData(Aquarium(
         id = "", // Será gerado pelo Firestore
         userId = "", // Será definido ao salvar
-        type = AquariumType.FRESHWATER, // Valor padrão
+        type = AquariumType.FRESHWATER , // Valor padrão
         size = 0.0, // Valor padrão
         fishSpecies = emptyList(), // Lista vazia inicialmente
         aquaticPlants = emptyList(), // Lista vazia inicialmente
