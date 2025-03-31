@@ -32,6 +32,11 @@ class AquariumViewModel : ViewModel() {
     )
     val aquarium: LiveData<Aquarium> get() = _aquarium
 
+    // Adicionando o TaskStateManager
+    private val _taskStateManager = TaskStateManager(this)
+    val taskStateManager: TaskStateManager get() = _taskStateManager
+
+
     // Lista de aquários do usuário
     private val _aquariums = MutableLiveData<List<Aquarium>>()
     val aquariums: LiveData<List<Aquarium>> get() = _aquariums
@@ -130,7 +135,71 @@ class AquariumViewModel : ViewModel() {
 
 }
 
+// Adicione esta classe dentro do mesmo arquivo ou em um novo arquivo
+class TaskStateManager(private val viewModel: AquariumViewModel) {
+    private val completedTasks = mutableSetOf<String>()
+    private val db: FirebaseFirestore = Firebase.firestore
+    private val auth: FirebaseAuth = Firebase.auth
 
+    fun isTaskCompleted(taskId: String): Boolean = completedTasks.contains(taskId)
+
+    fun toggleTaskCompletion(taskId: String) {
+        if (completedTasks.contains(taskId)) {
+            completedTasks.remove(taskId)
+        } else {
+            completedTasks.add(taskId)
+        }
+        saveCompletedTasks()
+    }
+
+    fun loadCompletedTasks(userId: String, onComplete: () -> Unit = {}) {
+        db.collection("users")
+            .document(userId)
+            .collection("completedTasks")
+            .get()
+            .addOnSuccessListener { result ->
+                completedTasks.clear()
+                result.documents.forEach { doc ->
+                    doc.getString("taskId")?.let { completedTasks.add(it) }
+                }
+                onComplete()
+            }
+            .addOnFailureListener { e ->
+                println("Erro ao carregar tarefas completas: ${e.message}")
+                onComplete()
+            }
+    }
+
+    private fun saveCompletedTasks() {
+        val userId = auth.currentUser?.uid ?: return
+        val batch = db.batch()
+
+        // Limpa todas as tarefas existentes
+        db.collection("users")
+            .document(userId)
+            .collection("completedTasks")
+            .get()
+            .addOnSuccessListener { result ->
+                result.forEach { doc ->
+                    batch.delete(doc.reference)
+                }
+
+                // Adiciona as tarefas atuais
+                completedTasks.forEach { taskId ->
+                    val newDoc = db.collection("users")
+                        .document(userId)
+                        .collection("completedTasks")
+                        .document()
+                    batch.set(newDoc, mapOf("taskId" to taskId))
+                }
+
+                batch.commit()
+                    .addOnFailureListener { e ->
+                        println("Erro ao salvar tarefas completas: ${e.message}")
+                    }
+            }
+    }
+}
 
 /*
 
