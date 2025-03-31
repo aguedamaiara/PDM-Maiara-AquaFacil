@@ -5,9 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aquafacil.model.Aquarium
 import com.aquafacil.model.AquariumType
-import com.aquafacil.model.FishSpecies
-import com.aquafacil.model.AquaticPlant
-import com.aquafacil.model.Equipment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -115,7 +112,26 @@ class AquariumViewModel : ViewModel() {
                 }
         }
     }
+
+    fun updateAquarium(aquarium: Aquarium) {
+        val userId = auth.currentUser?.uid ?: return
+        db.collection("users")
+            .document(userId)
+            .collection("aquariums")
+            .document(aquarium.id)
+            .set(aquarium)
+            .addOnSuccessListener {
+                loadAquariums() // Atualiza a lista após a edição
+            }
+            .addOnFailureListener { e ->
+                println("Erro ao atualizar aquário: ${e.message}")
+            }
+    }
+
 }
+
+
+
 /*
 
 class AquariumViewModel : ViewModel() {

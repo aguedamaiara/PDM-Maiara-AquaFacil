@@ -32,7 +32,7 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Cronograma de Manutenção") })
+            TopAppBar(title = { Text("Aqui estão os cronogramas dos seus aquários:") })
         }
     ) { paddingValues ->
         Column(
@@ -43,11 +43,11 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Aqui estão os cronogramas dos seus aquários:",
-                fontSize = 18.sp,
-                style = MaterialTheme.typography.titleMedium
-            )
+//            Text(
+//                text = "Aqui estão os cronogramas dos seus aquários:",
+//                fontSize = 18.sp,
+//                style = MaterialTheme.typography.titleMedium
+//            )
             Spacer(modifier = Modifier.height(16.dp))
 
             if (aquariums.isEmpty()) {
@@ -108,10 +108,11 @@ fun CronogramaItem(atividade: String) {
 
 fun gerarCronograma(aquarium: Aquarium): List<String> {
     val cronograma = mutableListOf<String>()
+    val quantidadePeixes = aquarium.fishQuantity
 
-    // Definindo o cronograma com base no tipo de aquário e tamanho
+    // Tarefas baseadas no tipo de aquário
     when (aquarium.type) {
-        AquariumType.FRESHWATER  -> {
+        AquariumType.FRESHWATER -> {
             cronograma.add("Troca parcial de água - ${calcularFrequenciaTroca(aquarium.size)}")
         }
         AquariumType.SALTWATER -> {
@@ -123,63 +124,70 @@ fun gerarCronograma(aquarium: Aquarium): List<String> {
         }
     }
 
-    // Adiciona tarefas relacionadas ao número de peixes com regras específicas
-    val quantidadePeixes = aquarium.fishQuantity.toIntOrNull() ?: 0
-    if (quantidadePeixes > 0) {
+    // Tarefas baseadas na quantidade de peixes
+    if (quantidadePeixes.isNotEmpty() && quantidadePeixes != "0") {
         cronograma.add("Alimentação dos peixes - ${calcularFrequenciaAlimentacao(quantidadePeixes)}")
         cronograma.add("Monitoramento da qualidade da água - ${calcularFrequenciaMonitoramento(quantidadePeixes)}")
 
-        if (quantidadePeixes > 10) {
-            cronograma.add("Verificação de oxigênio dissolvido - Diariamente")
+        if (quantidadePeixes == "5-10" || quantidadePeixes == "Mais de 10") {
+            cronograma.add("Verificação de oxigênio dissolvido - Semanalmente")
         }
+    } else {
+        cronograma.add("Nenhum peixe no aquário. Nenhuma alimentação necessária.")
     }
 
-    // Adiciona tarefas se o aquário for plantado
+    // Tarefas para aquários plantados
     if (aquarium.isPlanted) {
         cronograma.add("Fertilização das plantas aquáticas - Semanalmente")
         cronograma.add("Podas e manutenção das plantas - A cada 2 semanas")
 
-        if (quantidadePeixes > 5) {
-            cronograma.add("Verificação de CO2 - Semanalmente")
+        if (quantidadePeixes == "5-10" || quantidadePeixes == "Mais de 10") {
+            cronograma.add("Verificação de níveis de CO2 - Semanalmente")
         }
     }
 
-    // Adiciona tarefas se houver equipamentos
+    // Manutenção de equipamentos
     if (aquarium.hasEquipment) {
-        cronograma.add("Verificação e limpeza dos equipamentos - A cada 2 semanas")
-
-        if (quantidadePeixes > 15) {
-            cronograma.add("Limpeza do filtro - Semanalmente")
+        val frequenciaLimpeza = when (quantidadePeixes) {
+            "Mais de 10" -> "Semanalmente"
+            "5-10" -> "A cada 10 dias"
+            else -> "A cada 2 semanas"
         }
+        cronograma.add("Limpeza do filtro - $frequenciaLimpeza")
+        cronograma.add("Verificação geral dos equipamentos - Mensalmente")
     }
 
     return cronograma
 }
 
-// Novas funções para calcular frequências baseadas na quantidade de peixes
-fun calcularFrequenciaAlimentacao(quantidadePeixes: Int): String {
-    return when {
-        quantidadePeixes <= 5 -> "1 vez ao dia"
-        quantidadePeixes <= 10 -> "2 vezes ao dia (manhã e tarde)"
-        quantidadePeixes <= 20 -> "3 vezes ao dia (pequenas porções)"
-        else -> "4 vezes ao dia (pequenas porções)"
+// Função para calcular a frequência de alimentação com base na quantidade de peixes
+fun calcularFrequenciaAlimentacao(quantidadePeixes: String): String {
+    return when (quantidadePeixes) {
+        "1" -> "1 vez ao dia (pequena porção)"
+        "1-5" -> "1-2 vezes ao dia (porções moderadas)"
+        "5-10" -> "2 vezes ao dia (manhã e tarde)"
+        "Mais de 10" -> "2-3 vezes ao dia (pequenas porções para evitar sobras)"
+        else -> "Nenhuma alimentação programada"
     }
 }
 
-fun calcularFrequenciaMonitoramento(quantidadePeixes: Int): String {
-    return when {
-        quantidadePeixes <= 5 -> "Semanalmente"
-        quantidadePeixes <= 10 -> "2 vezes por semana"
-        quantidadePeixes <= 20 -> "3 vezes por semana"
-        else -> "Diariamente"
+
+fun calcularFrequenciaMonitoramento(quantidadePeixes: String): String {
+    return when (quantidadePeixes) {
+        "1" -> "A cada 10-14 dias"
+        "1-5" -> "Semanalmente"
+        "5-10" -> "2 vezes por semana"
+        "Mais de 10" -> "3 vezes por semana ou diariamente para aquários muito populosos"
+        else -> "Monitoramento básico mensal"
     }
 }
 
+// Mantemos a função de troca de água igual pois não depende da quantidade de peixes
 fun calcularFrequenciaTroca(tamanho: Double): String {
     return when {
-        tamanho <= 50 -> "Semanal"
-        tamanho <= 100 -> "A cada 2 semanas"
-        else -> "A cada 3 semanas"
+        tamanho <= 50 -> "Semanal (20-30%)"
+        tamanho <= 100 -> "A cada 2 semanas (15-20%)"
+        else -> "A cada 3 semanas (10-15%)"
     }
 }
 

@@ -24,7 +24,7 @@ data class Aquarium(
     val id: String = "",
     val userId: String = "",
     val name: String = "", // Novo campo para o nome do aquário
-    val type: AquariumType = AquariumType.FRESHWATER ,
+    val type: AquariumType = AquariumType.FRESHWATER,
     val size: Double = 0.0,
     val fishQuantity: String = "", // Quantidade de peixes (1, 1-5, 5-10, ou mais de 10)
     val isPlanted: Boolean = false, // Se o aquário é plantado
