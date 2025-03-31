@@ -2,4 +2,9 @@
     <string name="app_name">AquaFacil</string>
     <string name="channel_name">Lembretes de Tarefas</string>
     <string name="channel_description">Notificações para lembrar das tarefas de manutenção do aquário</string>
-</resources>
+    <string name="daily_tasks_channel_name">Lembretes Diários</string>
+    <string name="daily_tasks_channel_description">Notificações para tarefas diárias do aquário</string>
+    <string name="weekly_tasks_channel_name">Lembretes Semanais</string>
+    <string name="weekly_tasks_channel_description">Notificações para tarefas semanais do aquário</string>
+    <string name="monthly_tasks_channel_name">Lembretes Mensais</string>
+    <string name="monthly_tasks_channel_description">Notificações para tarefas mensais do aquário</string></resources>

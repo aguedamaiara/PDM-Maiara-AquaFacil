@@ -44,7 +44,22 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
             "Esta é uma notificação de teste do AquaFacil!"
         )
     }*/
-    
+
+    LaunchedEffect(Unit) {
+        val testTasks = listOf(
+            Task("1", "Troca parcial de água", "31/03/2025", "Semanal"),
+            Task("2", "Verificação de salinidade", "31/03/2025", "Semanal"),
+            Task("3", "Alimentação dos peixes", "", "Diária"),
+            Task("4", "Monitoramento da qualidade da água", "31/03/2025", "Semanal"),
+            Task("5", "Limpeza do filtro", "31/03/2025", "Semanal"),
+            Task("6", "Verificação geral dos equipamentos", "30/04/2025", "Mensal")
+        )
+
+        testTasks.forEach { task ->
+            // Marca como não concluída para forçar o agendamento
+            aquariumViewModel.taskStateManager.toggleTaskCompletion(task, "Aquario de golden")
+        }
+    }
     // Carrega os aquários e tarefas completas quando a tela for exibida
     LaunchedEffect(Unit) {
         aquariumViewModel.loadAquariums()
