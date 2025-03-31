@@ -148,3 +148,24 @@ object CronogramaUtils {
         }
     }
 }
+// Em CronogramaUtils.kt
+fun calculateNotificationTime(task: Task, baseDate: Date): Long {
+    val calendar = Calendar.getInstance().apply { time = baseDate }
+
+    // Ajuste conforme a frequência da tarefa
+    when (task.frequency) {
+        "Diária" -> calendar.set(Calendar.HOUR_OF_DAY, 9) // 9 AM
+        "Semanal" -> {
+            calendar.set(Calendar.HOUR_OF_DAY, 9)
+            if (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY)
+            }
+        }
+        "Mensal" -> {
+            calendar.set(Calendar.HOUR_OF_DAY, 9)
+            calendar.set(Calendar.DAY_OF_MONTH, 1)
+        }
+    }
+
+    return calendar.timeInMillis
+}

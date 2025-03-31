@@ -1,5 +1,6 @@
 package com.aquafacil.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,10 +12,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.util.UUID
-import com.aquafacil.ui.viewmodel.TaskStateManager
 
-
-class AquariumViewModel : ViewModel() {
+class AquariumViewModel(private val context: Context) : ViewModel() {
 
     // Inicializa o Firestore e o Firebase Auth
     private val db: FirebaseFirestore = Firebase.firestore
@@ -25,7 +24,8 @@ class AquariumViewModel : ViewModel() {
         Aquarium(
             id = "",
             userId = "",
-            type = AquariumType.FRESHWATER ,
+            name = "",
+            type = AquariumType.FRESHWATER,
             size = 0.0,
             fishQuantity = "1", // Valor padrão
             isPlanted = false,
@@ -34,11 +34,8 @@ class AquariumViewModel : ViewModel() {
     )
     val aquarium: LiveData<Aquarium> get() = _aquarium
 
-    // Adicionando o TaskStateManager
-    private val _taskStateManager = TaskStateManager(this)
-//    val taskStateManager: TaskStateManager get() = _taskStateManager
-    val taskStateManager = TaskStateManager(this)
-
+    // TaskStateManager agora recebe o contexto
+    val taskStateManager = TaskStateManager(this, context)
 
     // Lista de aquários do usuário
     private val _aquariums = MutableLiveData<List<Aquarium>>()
@@ -73,7 +70,6 @@ class AquariumViewModel : ViewModel() {
     fun setName(name: String) {
         _aquarium.value = _aquarium.value?.copy(name = name)
     }
-
 
     // Função para salvar o aquário no Firestore
     fun saveAquarium(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -135,6 +131,4 @@ class AquariumViewModel : ViewModel() {
                 println("Erro ao atualizar aquário: ${e.message}")
             }
     }
-
 }
-

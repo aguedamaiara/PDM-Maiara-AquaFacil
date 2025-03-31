@@ -11,12 +11,14 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aquafacil.model.Aquarium
 import com.aquafacil.model.AquariumType
 import com.aquafacil.model.Task
 import com.aquafacil.model.getDisplayName
+import com.aquafacil.notifications.NotificationHelper
 import com.aquafacil.ui.viewmodel.AquariumViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,6 +33,18 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showFilters by remember { mutableStateOf(false) }
 
+    // Obter o contexto atual
+    val context = LocalContext.current
+
+    /*// TESTE RÁPIDO DE NOTIFICAÇÃO (adicionar esta parte)
+    LaunchedEffect(Unit) {
+        val notificationHelper = NotificationHelper(context)
+        notificationHelper.showNotification(
+            "Teste de Notificação",
+            "Esta é uma notificação de teste do AquaFacil!"
+        )
+    }*/
+    
     // Carrega os aquários e tarefas completas quando a tela for exibida
     LaunchedEffect(Unit) {
         aquariumViewModel.loadAquariums()
@@ -113,7 +127,11 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
                                 CronogramaItem(
                                     atividade = atividade,
                                     onCheckedChange = { task, checked ->
-                                        aquariumViewModel.taskStateManager.toggleTaskCompletion(task)
+                                        // Atualizado para passar o nome do aquário
+                                        aquariumViewModel.taskStateManager.toggleTaskCompletion(
+                                            task,
+                                            aquarium.name
+                                        )
                                     }
                                 )
                             }
@@ -161,6 +179,7 @@ fun CronogramaScreen(aquariumViewModel: AquariumViewModel) {
             }
         )
     }
+
 }
 
 @Composable
@@ -234,4 +253,3 @@ fun CronogramaItem(
         }
     }
 }
-

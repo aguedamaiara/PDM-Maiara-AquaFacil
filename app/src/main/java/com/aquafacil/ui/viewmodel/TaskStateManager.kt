@@ -1,13 +1,18 @@
 package com.aquafacil.ui.viewmodel
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import com.aquafacil.model.Task
+import com.aquafacil.notifications.TaskNotificationReceiver
 import com.aquafacil.utils.CronogramaUtils
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.util.*
 
-class TaskStateManager(private val viewModel: AquariumViewModel) {
+class TaskStateManager(private val viewModel: AquariumViewModel, private val context: Context) {
     // Armazena o timestamp de quando a tarefa foi completada
     private val completedTasks = mutableMapOf<String, Long>()
 
@@ -44,7 +49,7 @@ class TaskStateManager(private val viewModel: AquariumViewModel) {
         }
     }
 
-    fun toggleTaskCompletion(task: Task) {
+    fun toggleTaskCompletion(task: Task, aquariumName: String) {
         val currentTime = System.currentTimeMillis()
         val currentPeriod = CronogramaUtils.getCurrentPeriodId(task.frequency, Date())
 
@@ -52,12 +57,56 @@ class TaskStateManager(private val viewModel: AquariumViewModel) {
             // Se já está completada, desmarca
             completedTasks.remove(task.id)
             taskPeriods.remove(task.id)
+            // Cancela a notificação
+            cancelTaskNotification(task)
         } else {
             // Se não está completada, marca com timestamp e período atual
             completedTasks[task.id] = currentTime
             taskPeriods[task.id] = currentPeriod
+            // Agenda a notificação
+            scheduleTaskNotification(task, aquariumName)
         }
         saveCompletedTasks()
+    }
+
+    private fun scheduleTaskNotification(task: Task, aquariumName: String) {
+        // Calcular o horário para a notificação (1 hora antes da tarefa)
+        val alarmTime = Calendar.getInstance().apply {
+            time = Date() // Você pode ajustar isso para a data real da tarefa
+            add(Calendar.HOUR_OF_DAY, 1) // Notificar em 1 hora (para teste)
+        }.timeInMillis
+
+        val intent = Intent(context, TaskNotificationReceiver::class.java).apply {
+            putExtra("task_title", "${aquariumName}: ${task.title}")
+            putExtra("message", "Esta tarefa está agendada para hoje!")
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            alarmTime,
+            pendingIntent
+        )
+    }
+
+    private fun cancelTaskNotification(task: Task) {
+        val intent = Intent(context, TaskNotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
     }
 
     private fun isNewDay(oldTime: Long, currentDate: Date): Boolean {
