@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aquafacil.model.Aquarium
@@ -32,6 +34,9 @@ import com.google.firebase.ktx.Firebase
 
 @Composable
 fun HomeScreen(aquariumViewModel: AquariumViewModel, onNavigate: () -> Unit) {
+
+    val PrimaryButtonColor = Color(0xFF03A9F4)
+
     // Obtém o ID do usuário logado
     val auth: FirebaseAuth = Firebase.auth
 
@@ -68,7 +73,9 @@ fun HomeScreen(aquariumViewModel: AquariumViewModel, onNavigate: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = onNavigate) {
+        Button(onClick = onNavigate,
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryButtonColor)
+                ){
             Text("Configurar Aquário")
         }
     }
@@ -76,6 +83,7 @@ fun HomeScreen(aquariumViewModel: AquariumViewModel, onNavigate: () -> Unit) {
 
 @Composable
 fun AquariumItem(aquarium: Aquarium, aquariumViewModel: AquariumViewModel) {
+    val PrimaryButtonColor = Color(0xFF03A9F4)
     var showDialog by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -95,7 +103,12 @@ fun AquariumItem(aquarium: Aquarium, aquariumViewModel: AquariumViewModel) {
         Text("Quantidade de peixes: ${aquarium.fishQuantity}")
         Text("Possui Plantas: ${if (aquarium.isPlanted) "Sim" else "Não"}")
         Text("Equipamentos instalados: ${if (aquarium.hasEquipment) "Sim" else "Não"}")
-        Button(onClick = { showDialog = true }) { Text("Editar") }
+        Button(
+            onClick = { showDialog = true },
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryButtonColor)
+        ) {
+            Text("Editar", color = Color.White)
+        }
         Spacer(modifier = Modifier.height(8.dp))
         Divider() // Adiciona uma linha divisória entre os aquários
     }

@@ -81,5 +81,7 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8") // Picasso
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("com.google.code.gson:gson:2.8.8")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+
 
 }

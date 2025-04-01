@@ -24,6 +24,7 @@ fun PerfilScreen(navController: NavController) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf<String?>(null) } // Mensagem de sucesso
+    val PrimaryButtonColor = Color(0xFF03A9F4)
 
     // Buscar informações do usuário no Firestore
     LaunchedEffect(currentUser?.uid) {

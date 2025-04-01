@@ -232,18 +232,32 @@ class TaskStateManager(private val viewModel: AquariumViewModel, private val con
 
     fun loadCompletedTasks(userId: String, onComplete: () -> Unit = {}) {
         val tasksRef = database.child("users").child(userId).child("completedTasks")
+
         tasksRef.get().addOnSuccessListener { snapshot ->
-            snapshot.getValue(object: com.google.firebase.database.GenericTypeIndicator<Map<String, Long>>() {})?.let {
-                completedTasks.clear()
-                completedTasks.putAll(it)
+            completedTasks.clear()
+
+            for (doc in snapshot.children) {
+                val taskId = doc.child("taskId").getValue(String::class.java)
+                val completedTime = doc.child("completedDate").getValue(Long::class.java) ?: System.currentTimeMillis()
+
+                if (taskId != null) {
+                    completedTasks[taskId] = completedTime
+                }
             }
 
             val periodsRef = database.child("users").child(userId).child("taskPeriods")
             periodsRef.get().addOnSuccessListener { periodsSnapshot ->
-                periodsSnapshot.getValue(object: com.google.firebase.database.GenericTypeIndicator<Map<String, String>>() {})?.let {
-                    taskPeriods.clear()
-                    taskPeriods.putAll(it)
+                taskPeriods.clear()
+
+                for (doc in periodsSnapshot.children) {
+                    val taskId = doc.child("taskId").getValue(String::class.java)
+                    val period = doc.child("period").getValue(String::class.java)
+
+                    if (taskId != null && period != null) {
+                        taskPeriods[taskId] = period
+                    }
                 }
+
                 onComplete()
             }.addOnFailureListener {
                 onComplete()
